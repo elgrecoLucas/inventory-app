@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->decimal('total_amount');
             $table->enum('status', ['new', 'processing', 'shipped', 'delivered', 'canceled'])->default('new');
-            $table->enum('shipping_method', ['home delivery', 'the seller delivers', 'Pick up at the office']);
+            $table->enum('shipping_method', ['home delivery', 'the seller delivers', 'pick up at the office']);
             $table->timestamps();
         });
     }
