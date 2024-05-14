@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
             $table->integer('stock_quantity_virtual');
             $table->integer('stock_quantity_real');
-            $table->integer('stock_available');
+            $table->boolean('stock_available')->default(true);
             $table->timestamps();
         });
     }
