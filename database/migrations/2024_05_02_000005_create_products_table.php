@@ -18,8 +18,6 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete();
-            //TABLA INTERMEDIA!
-            $table->foreignId('tag_id')->constrained('tags')->cascadeOnDelete();
             $table->string('name');
             $table->json('images')->nullable();
             $table->string('brand')->nullable();
