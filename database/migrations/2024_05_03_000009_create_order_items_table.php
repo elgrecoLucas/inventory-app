@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('stock_id')->constrained('stocks')->cascadeOnDelete();
             $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
             $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete();
-            $table->foreignId('color_id')->constrained('colors')->cascadeOnDelete();
             $table->integer('quantity')->default(1);
             $table->decimal('unit_amount');
             $table->decimal('total_amount');
