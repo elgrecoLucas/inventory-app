@@ -26,7 +26,6 @@ return new class extends Migration
             $table->string('color')->nullable();
             $table->string('size')->nullable();
             $table->string('description');
-            $table->boolean('is_active')->default(true);
             $table->boolean('is_featured')->default(false);
             $table->boolean('in_stock')->default(true);
             $table->boolean('on_sale')->default(false);

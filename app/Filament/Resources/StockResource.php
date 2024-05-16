@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\OrderResource\Pages;
-use App\Filament\Resources\OrderResource\RelationManagers;
-use App\Models\Order;
+use App\Filament\Resources\StockResource\Pages;
+use App\Filament\Resources\StockResource\RelationManagers;
+use App\Models\Stock;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,27 +13,29 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class OrderResource extends Resource
+class StockResource extends Resource
 {
-    protected static ?string $model = Order::class; 
+    protected static ?string $model = Stock::class;
 
-    protected static ?string $navigationLabel = 'Ordenes de compra';
-    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
-    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationIcon = 'heroicon-o-circle-stack';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required(),
-                Forms\Components\TextInput::make('total_amount')
+                Forms\Components\TextInput::make('category_id')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('status')
+                Forms\Components\Select::make('product_id')
+                    ->relationship('product', 'name')
                     ->required(),
-                Forms\Components\TextInput::make('shipping_method')
+                Forms\Components\TextInput::make('stock_quantity_virtual')
+                    ->required()
+                    ->numeric(),
+                Forms\Components\TextInput::make('stock_quantity_real')
+                    ->required()
+                    ->numeric(),
+                Forms\Components\Toggle::make('stock_available')
                     ->required(),
             ]);
     }
@@ -42,17 +44,20 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('category_id')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('user.lastname')
+                Tables\Columns\TextColumn::make('product.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('total_amount')
+                Tables\Columns\TextColumn::make('stock_quantity_virtual')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('status'),
-                Tables\Columns\TextColumn::make('shipping_method'),
+                Tables\Columns\TextColumn::make('stock_quantity_real')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\IconColumn::make('stock_available')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -85,9 +90,9 @@ class OrderResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOrders::route('/'),
-            'create' => Pages\CreateOrder::route('/create'),
-            'edit' => Pages\EditOrder::route('/{record}/edit'),
+            'index' => Pages\ListStocks::route('/'),
+            'create' => Pages\CreateStock::route('/create'),
+            'edit' => Pages\EditStock::route('/{record}/edit'),
         ];
     }
 }
