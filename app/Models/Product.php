@@ -20,17 +20,16 @@ class Product extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'images' => 'array',
+    ];
+
 
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'product_tag', 'product_id', 'tag_id');
     }
 
-    /**
-     * Get the category that owns the Product
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id', 'id');
