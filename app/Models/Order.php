@@ -21,11 +21,6 @@ class Order extends Model
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    /**
-     * Get all of the orderItems for the Order
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class, 'order_id', 'id');
