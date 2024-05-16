@@ -25,7 +25,6 @@ class ProductSeeder extends Seeder
                 'color' => 'Merlot',
                 'size' => '1.18 Lts',
                 'description' => 'Vaso térmico Stanley Quencher de acero inoxidable 18/8 con doble pared aislante. Mantiene tus bebidas frías por 6 horas y calientes por 4 horas. Tapa FlowState™ a prueba de fugas. Ideal para llevar contigo a cualquier lugar.',
-                'is_active' => true,
                 'is_featured' => true, // Producto destacado
                 'in_stock' => true,
                 'on_sale' => false, // Producto en oferta
@@ -40,7 +39,6 @@ class ProductSeeder extends Seeder
                 'color' => 'Plata',
                 'size' => '1.7 Lts',
                 'description' => 'Pava eléctrica de acero inoxidable con capacidad de 1.7 litros. Control de temperatura regulable. Apagado automático. Base giratoria 360°. Filtro removible para facilitar la limpieza. Ideal para el hogar o la oficina.',
-                'is_active' => true,
                 'is_featured' => false,
                 'in_stock' => true,
                 'on_sale' => false,
@@ -55,7 +53,6 @@ class ProductSeeder extends Seeder
                 'color' => 'Gris',
                 'size' => '1.18 Lts',
                 'description' => 'Vaso térmico Stanley Quencher de acero inoxidable 18/8 con doble pared aislante. Mantiene tus bebidas frías por 6 horas y calientes por 4 horas. Tapa FlowState™ a prueba de fugas. Ideal para llevar contigo a cualquier lugar.',
-                'is_active' => true,
                 'is_featured' => true, // Producto destacado
                 'in_stock' => true,
                 'on_sale' => false, // Producto en oferta
@@ -70,7 +67,6 @@ class ProductSeeder extends Seeder
                 'color' => 'Acero',
                 'size' => '1.18 Lts',
                 'description' => 'Vaso térmico Stanley Quencher de acero inoxidable 18/8 con doble pared aislante. Mantiene tus bebidas frías por 6 horas y calientes por 4 horas. Tapa FlowState™ a prueba de fugas. Ideal para llevar contigo a cualquier lugar.',
-                'is_active' => true,
                 'is_featured' => true, // Producto destacado
                 'in_stock' => true,
                 'on_sale' => false, // Producto en oferta
