@@ -16,8 +16,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class StockResource extends Resource
 {
     protected static ?string $model = Stock::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-circle-stack';
+    protected static ?string $navigationGroup = 'Gestión de productos';
+    protected static ?int $navigationSort = 3;
+    //protected static ?string $navigationIcon = 'heroicon-o-circle-stack';
 
     public static function form(Form $form): Form
     {
