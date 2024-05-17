@@ -21,10 +21,11 @@ use Filament\Tables\Actions\ViewAction;
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class; 
-
+    
+    protected static ?string $navigationGroup = 'Gestión de compras';
     protected static ?string $navigationLabel = 'Ordenes de compra';
-    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
-    protected static ?int $navigationSort = 2;
+    //protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
+    protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
     {
@@ -87,7 +88,7 @@ class OrderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\OrderItemsRelationManager::class,
         ];
     }
 

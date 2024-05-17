@@ -14,10 +14,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProductResource extends Resource
-{
+{   
+    protected static ?string $navigationGroup = 'Gestión de productos';
     protected static ?string $model = Product::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-clipboard';
+    protected static ?string $navigationLabel = 'Productos';
+    protected static ?int $navigationSort = 2;
+    //protected static ?string $navigationIcon = 'heroicon-o-clipboard';
 
     public static function form(Form $form): Form
     {
