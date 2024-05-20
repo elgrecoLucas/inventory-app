@@ -21,7 +21,7 @@ class StockResource extends Resource
     //protected static ?string $navigationIcon = 'heroicon-o-circle-stack';
 
     public static function form(Form $form): Form
-    {
+    {   
         return $form
             ->schema([
                 Forms\Components\TextInput::make('category_id')
@@ -45,19 +45,25 @@ class StockResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('category_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('product.category.name')
+                    ->label('Categoria')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('product.name')
-                    ->numeric()
+                    ->label('Producto')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('product.color')
+                    ->label('Color')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stock_quantity_virtual')
+                    ->label('Stock Virtual')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stock_quantity_real')
+                    ->label('Stock real')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('stock_available')
+                    ->label('Stock disponible')    
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
