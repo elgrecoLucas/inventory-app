@@ -18,6 +18,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Navigation\NavigationGroup;
+use Shanerbaner82\PanelRoles\PanelRoles;
 
 class DashboardPanelProvider extends PanelProvider
 {
@@ -68,6 +69,12 @@ class DashboardPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->plugins([
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+                PanelRoles::make()
+                ->roleToAssign('super_admin')
+                ->restrictedRoles(['super_admin']),
             ]);
     }
 }
