@@ -16,10 +16,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete();
             $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
-            $table->foreignId('color_id')->constrained('colors')->cascadeOnDelete();
             $table->integer('stock_quantity_virtual');
             $table->integer('stock_quantity_real');
-            $table->integer('stock_available');
+            $table->boolean('stock_available')->default(true);
             $table->timestamps();
         });
     }
