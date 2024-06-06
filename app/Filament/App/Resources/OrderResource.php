@@ -13,12 +13,18 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Set;
+use Filament\Forms\Get;
+use Illuminate\Support\Number;
+
+use App\Models\Product;
 
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
     protected static ?string $navigationLabel = 'Mis compras';
-    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
+    //protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
     protected static ?int $navigationSort = 2;
 
     public static function getEloquentQuery(): Builder
@@ -30,7 +36,110 @@ class OrderResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Group::make()->schema([
+                    Forms\Components\Section::make('Información')->schema([
+                        Forms\Components\TextInput::make('user_name')
+                        ->default(auth()->user()->name)
+                        ->label('Comprador')
+                        ->disabled()
+                        ->columnSpan(4),
+                        Forms\Components\ToggleButtons::make('shipping_method')
+                        ->inline()
+                        ->label('Tipo de entrega')
+                        ->default('home delivery')
+                        ->required()
+                        ->options([
+                            'home delivery' => 'Entrega a domicilio',
+                            'the seller delivers' => 'El vendedor entrega',
+                            'pick up at the office' => 'Recoger en la oficina',
+                        ])
+                        ->colors([
+                            'home delivery' => 'info',
+                            'the seller delivers' => 'info',
+                            'pick up at the office' => 'info',
+                        ])
+                        ->icons([
+                            'home delivery' => 'heroicon-m-home',
+                            'the seller delivers' => 'heroicon-m-truck',
+                            'pick up at the office' => 'heroicon-m-building-office-2',
+                        ])
+                        ->columnSpan(8),
+                    ])->columns(12),
+                        
+                    Forms\Components\Section::make('Compra')->schema([
+                        Forms\Components\Repeater::make('orderItems')
+                        ->relationship()
+                        ->label('productos')
+                        ->schema([
+                            Forms\Components\Select::make('product_id')
+                            ->relationship('product', 'name')
+                            ->label('Producto')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->distinct()
+                            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                            ->reactive()
+                            ->afterStateUpdated(fn($state, Set $set) => $set('unit_amount', Product::find($state)?->price ?? 0))
+                            ->afterStateUpdated(fn($state, Set $set) => $set('total_amount', Product::find($state)?->price ?? 0))
+                            ->afterStateUpdated(fn($state, Set $set) => $set('stock_id', Product::find($state)->stock->id))
+                            ->afterStateUpdated(fn($state, Set $set) => $set('category_id', Product::find($state)->category->id))
+                            ->columnSpan(4),
+
+                            Forms\Components\TextInput::make('quantity')
+                            ->numeric()
+                            ->label('Cantidad')
+                            ->required()
+                            ->default(1)
+                            ->minValue(1)
+                            ->reactive()
+                            ->afterStateUpdated(fn($state, Set $set, Get $get) => $set('total_amount', $state*$get('unit_amount')))
+                            ->columnSpan(2),
+
+                            Forms\Components\TextInput::make('unit_amount')
+                            ->numeric()
+                            ->label('Precio por unidad')
+                            ->required()
+                            ->disabled()
+                            ->dehydrated()
+                            ->columnSpan(3),
+
+                            Forms\Components\Hidden::make('stock_id')
+                            ->default(0),
+
+                            Forms\Components\Hidden::make('category_id')
+                            ->default(0),
+
+                            Forms\Components\TextInput::make('total_amount')
+                            ->numeric()
+                            ->label('Precio unidad x cantidad')
+                            ->required()
+                            ->dehydrated()
+                            ->columnSpan(3)
+
+                        ])->columns(12),
+
+                        Forms\Components\Placeholder::make('total_amount_placeholder')
+                        ->label('Precio total de la orden de compra')
+                        ->content(function(Get $get, Set $set) {
+                            $total = 0;
+                            if (!$repeaters = $get('orderItems')){
+                                return $total;
+                            }
+
+                            foreach ($repeaters as $key => $repeater){
+                                $total += $get("orderItems.{$key}.total_amount");
+                            }
+
+                            $set('total_amount', $total);
+                            return Number::currency($total);
+                        }),
+
+                        Forms\Components\Hidden::make('total_amount')
+                        ->default(0)
+                    ])
+
+                ])->columnSpanFull()
             ]);
     }
 

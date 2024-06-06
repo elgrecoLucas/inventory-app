@@ -9,4 +9,13 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateOrder extends CreateRecord
 {
     protected static string $resource = OrderResource::class;
+    protected static ?string $title = 'Crear orden de compra';
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['status'] = 'processing';
+        $data['user_id'] = auth()->id();
+
+        return $data;
+    }
 }
