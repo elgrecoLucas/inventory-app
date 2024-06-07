@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Set;
 use Filament\Forms\Get;
+use Closure;
 use Illuminate\Support\Number;
 
 use App\Models\Product;
@@ -82,8 +83,12 @@ class OrderResource extends Resource
                             ->reactive()
                             ->afterStateUpdated(fn($state, Set $set) => $set('unit_amount', Product::find($state)?->price ?? 0))
                             ->afterStateUpdated(fn($state, Set $set) => $set('total_amount', Product::find($state)?->price ?? 0))
-                            ->afterStateUpdated(fn($state, Set $set) => $set('stock_id', Product::find($state)->stock->id))
+                            ->afterStateUpdated(function($state, Set $set) {
+                                $set('stock_id', Product::find($state)->stock->id);
+                                $set('stock_quantity_virtual', Product::find($state)->stock->stock_quantity_virtual);
+                            })
                             ->afterStateUpdated(fn($state, Set $set) => $set('category_id', Product::find($state)->category->id))
+                            ->selectablePlaceholder(false)
                             ->columnSpan(4),
 
                             Forms\Components\TextInput::make('quantity')
@@ -93,16 +98,35 @@ class OrderResource extends Resource
                             ->default(1)
                             ->minValue(1)
                             ->reactive()
-                            ->afterStateUpdated(fn($state, Set $set, Get $get) => $set('total_amount', $state*$get('unit_amount')))
+                            ->rules([
+                                fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                                    if ($value > $get('stock_quantity_virtual')) {
+                                        $fail('La :attribute no puede ser superior al stock disponible');
+                                    }
+                                },
+                            ])
+                            ->afterStateUpdated(function ($state, Set $set, Get $get, Forms\Contracts\HasForms $livewire, Forms\Components\TextInput $component) {
+                                $livewire->validateOnly($component->getStatePath());
+                                $set('total_amount', $state*$get('unit_amount'));
+                            })
+                            ->hidden(fn (Get $get) => ! $get('product_id'))
+                            ->columnSpan(2),
+
+                            Forms\Components\TextInput::make('stock_quantity_virtual')
+                            ->numeric()
+                            ->label('Stock disponible')
+                            ->disabled()
+                            ->hidden(fn (Get $get) => ! $get('product_id'))
                             ->columnSpan(2),
 
                             Forms\Components\TextInput::make('unit_amount')
                             ->numeric()
-                            ->label('Precio por unidad')
+                            ->label('Precio')
                             ->required()
                             ->disabled()
                             ->dehydrated()
-                            ->columnSpan(3),
+                            ->hidden(fn (Get $get) => ! $get('product_id'))
+                            ->columnSpan(2),
 
                             Forms\Components\Hidden::make('stock_id')
                             ->default(0),
@@ -112,12 +136,13 @@ class OrderResource extends Resource
 
                             Forms\Components\TextInput::make('total_amount')
                             ->numeric()
-                            ->label('Precio unidad x cantidad')
+                            ->label('Precio x cantidad')
                             ->required()
+                            ->disabled()
                             ->dehydrated()
-                            ->columnSpan(3)
-
-                        ])->columns(12),
+                            ->hidden(fn (Get $get) => ! $get('product_id'))
+                            ->columnSpan(2)
+                        ])->columns(12)->addActionLabel('Agregar producto'),
 
                         Forms\Components\Placeholder::make('total_amount_placeholder')
                         ->label('Precio total de la orden de compra')
