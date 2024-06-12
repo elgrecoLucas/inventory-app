@@ -13,17 +13,7 @@ class OrderObserver
      */
     public function created(Order $order): void
     {
-        $items = $order->orderItems;
-
-        foreach ($items as $item) {
-
-            $stock = Stock::find($item->stock_id);
-            $stock_update = $stock->stock_quantity_virtual - $item->quantity;
-
-            $stock->update([
-                "stock_quantity_virtual" => $stock_update
-            ]);
-        }
+        //
     }
 
     /**
