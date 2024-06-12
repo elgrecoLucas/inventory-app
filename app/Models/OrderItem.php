@@ -9,10 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Order;
 use App\Models\Product;
 
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-use App\Observers\OrderItemObserver;
-
-#[ObservedBy([OrderItemObserver::class])]
 class OrderItem extends Model
 {
     use HasFactory;
