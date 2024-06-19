@@ -48,6 +48,12 @@ class CreateOrder extends CreateRecord
             $stock = Stock::find($item->stock_id);
             $stock_update = $stock->stock_quantity_virtual - $item->quantity;
 
+            if($stock_update == 0) {
+                $stock->update([
+                    "stock_available" => false
+                ]);
+            }
+
             $stock->update([
                 "stock_quantity_virtual" => $stock_update
             ]);

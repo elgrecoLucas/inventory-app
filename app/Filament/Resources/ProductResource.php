@@ -13,6 +13,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\HtmlString;
+use Filament\Forms\Set;
+use Filament\Forms\Get;
+
+use App\Models\Category;
 
 class ProductResource extends Resource
 {   
@@ -83,6 +87,7 @@ class ProductResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload()
+                            ->reactive()
                     ]),
                     Forms\Components\Section::make("Estados")->schema([
                         Forms\Components\Toggle::make('is_featured')
@@ -97,6 +102,25 @@ class ProductResource extends Resource
                             ->label('En Oferta')
                             ->required()
                             ->default(false),
+                    ]),
+                    Forms\Components\Section::make('Stock')
+                    ->relationship('stock')
+                    ->schema([
+
+                        Forms\Components\TextInput::make('stock_quantity_virtual')
+                        ->numeric()
+                        ->label('Stock virtual')
+                        ->required(),
+
+                        Forms\Components\TextInput::make('stock_quantity_real')
+                        ->numeric()
+                        ->label('Stock Real')
+                        ->required(),
+
+                        Forms\Components\Toggle::make('stock_available')
+                            ->label('Stock habilitado')
+                            ->required()
+                            ->default(true),
                     ]),
                 ])->columnSpan(1)
 
@@ -164,7 +188,7 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\TagsRelationManager::class,
         ];
     }
 
