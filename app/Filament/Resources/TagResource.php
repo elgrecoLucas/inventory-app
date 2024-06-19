@@ -26,17 +26,21 @@ class TagResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
                     ->maxLength(255)
                     ->live()
                     ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
                 Forms\Components\TextInput::make('slug')
+                    ->label('Nombre corto')
                     ->required()
                     ->maxLength(255)
                     ->dehydrated(),
                 Forms\Components\FileUpload::make('image')
+                    ->label('Imagen')
                     ->image(),
                 Forms\Components\Toggle::make('is_active')
+                    ->label('Está activa')
                     ->required(),
             ]);
     }
@@ -46,11 +50,14 @@ class TagResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('slug')
+                    ->label('Nombre corto')
                     ->searchable(),
                 Tables\Columns\ImageColumn::make('image'),
                 Tables\Columns\IconColumn::make('is_active')
+                    ->label('Está activa')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

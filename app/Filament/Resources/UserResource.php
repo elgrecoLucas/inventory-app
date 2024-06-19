@@ -26,40 +26,51 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
+                    ->label('Nombre/s')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('lastname')
+                    ->label('Apellido/s')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('dni')
+                    ->label('DNI')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('cuit')
+                    ->label('CUIT')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('email')
+                    ->label('Correo electrónico')
+                    ->email()
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('address')
+                    ->label('Domicilio')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('city')
+                    ->label('Ciudad')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('province')
+                    ->label('Provincia')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('phone')
+                    ->label('Teléfono')
                     ->tel()
                     ->required()
                     ->maxLength(255),
                 Forms\Components\DateTimePicker::make('email_verified_at'),
                 Forms\Components\TextInput::make('password')
+                    ->label('Contraseña')
                     ->password()
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Select::make('roles')
+                    ->label('Rol')
                     ->relationship('roles', 'name')
                     ->multiple()
                     ->preload()
@@ -72,24 +83,34 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email')
+                    ->label('Nombre/s')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('lastname')
+                    ->label('Apellido/s')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('dni')
+                    ->label('DNI')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('cuit')
+                    ->label('CUIT')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->label('Correo electrónico')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('address')
+                    ->label('Domicilio')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('city')
+                    ->label('Ciudad')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('province')
+                    ->label('Provincia')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
+                    ->label('Teléfono')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email_verified_at')
+                    ->label('Correo verificado')
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')

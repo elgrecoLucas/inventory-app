@@ -12,11 +12,23 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Set;
+use Illuminate\Support\Str;
+
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
+
+use Filament\Resources\Concerns\Translatable;
+
 
 class CategoryResource extends Resource
 {
+    use translatable;
     protected static ?string $model = Category::class;
     protected static ?string $navigationGroup = 'Gestión de productos';
+    protected static ?string $navigationLabel = 'Categorías';
     protected static ?int $navigationSort = 1;
     //protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -25,14 +37,21 @@ class CategoryResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->live()
+                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
                 Forms\Components\TextInput::make('slug')
+                    ->label('Nombre corto')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->dehydrated(),
                 Forms\Components\FileUpload::make('image')
+                    ->label('Imagen')
                     ->image(),
                 Forms\Components\Toggle::make('is_active')
+                    ->label('Está activa')
                     ->required(),
             ]);
     }
@@ -42,26 +61,36 @@ class CategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('slug')
+                    ->label('Nombre corto')
                     ->searchable(),
-                Tables\Columns\ImageColumn::make('image'),
+                Tables\Columns\ImageColumn::make('image')
+                    ->label('Imagen'),
                 Tables\Columns\IconColumn::make('is_active')
+                    ->label('Está activa')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    //->toggleable(isToggledHiddenByDefault: true)
+                    ->hidden(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    //->toggleable(isToggledHiddenByDefault: true)
+                    ->hidden(),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

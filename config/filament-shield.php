@@ -19,14 +19,14 @@ return [
 
     'super_admin' => [
         'enabled' => true,
-        'name' => 'super_admin',
+        'name' => 'Administrador',
         'define_via_gate' => false,
         'intercept_gate' => 'before', // after
     ],
 
     'panel_user' => [
         'enabled' => true,
-        'name' => 'panel_user',
+        'name' => 'Comprador',
     ],
 
     'permission_prefixes' => [

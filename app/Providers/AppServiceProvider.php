@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
             $panelSwitch
                 ->simple()
                 ->visible(fn (): bool => auth()->user()?->hasAnyRole([
-                    'super_admin',
+                    'Administrador',
                 ]));
 
         });

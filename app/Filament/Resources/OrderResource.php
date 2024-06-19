@@ -50,23 +50,30 @@ class OrderResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
                     ->numeric()
+                    ->label('Nombre del usuario')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.lastname')
                     ->numeric()
+                    ->label('Apellido del usuario')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total_amount')
                     ->numeric()
+                    ->label('Monto total')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('status'),
-                Tables\Columns\TextColumn::make('shipping_method'),
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Estado'),
+                Tables\Columns\TextColumn::make('shipping_method')
+                    ->label('Método de envío'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    //->toggleable(isToggledHiddenByDefault: true),
+                    ->hidden(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    //->toggleable(isToggledHiddenByDefault: true),
+                    ->hidden(),
             ])
             ->filters([
                 //
