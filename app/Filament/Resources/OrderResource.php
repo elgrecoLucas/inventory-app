@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Stock;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,6 +15,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+use Filament\Tables\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -60,10 +64,15 @@ class OrderResource extends Resource
                     ->numeric()
                     ->label('Monto total')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Estado'),
+                Tables\Columns\BadgeColumn::make('status')
+                ->label('Estado')
+                ->colors([
+                    'secondary' => 'proccesing',
+                    'success' => 'finished',
+                    'danger' => 'canceled',
+                ]),
                 Tables\Columns\TextColumn::make('shipping_method')
-                    ->label('Método de envío'),
+                ->label('Método de envío'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -84,6 +93,87 @@ class OrderResource extends Resource
                     EditAction::make(),
                     DeleteAction::make(),
                 ]),
+
+                Action::make('Aprobar')
+                    ->action(function (Order $record) {
+                        if($record->status == 'processing') {
+                            $items = OrderItem::where('order_id', $record->id)->get();
+
+                            foreach ($items as $item) {
+                                $stock = Stock::find($item->stock_id);
+                                $stock_update = $stock->stock_quantity_real - $item->quantity;
+
+                                $stock->update([
+                                    "stock_quantity_real" => $stock_update
+                                ]);
+                            }
+
+                            $record->update([
+                                "status" => "finished"
+                            ]);
+
+                            Notification::make()
+                            ->success()
+                            ->title('Orden Aprobada')
+                            ->body('El stock real de los productos fue actualizo.')
+                            ->send();
+
+                        } else {
+                            Notification::make()
+                            ->danger()
+                            ->title('No se puede aprobar la orden')
+                            ->body('Solo se pueden aprobar las ordenes en estado processing')
+                            ->send();
+                        }
+                      
+                    })
+                    ->requiresConfirmation()
+                    ->icon('heroicon-o-hand-thumb-up')
+                    ->button()
+                    ->color('success'),
+
+                Action::make('Cancelar')
+                    ->action(function (Order $record) {
+                        
+                        if($record->status == 'processing') {
+                            $items = OrderItem::where('order_id', $record->id)->get();
+
+                            foreach ($items as $item) {
+                                $stock = Stock::find($item->stock_id);
+                                $stock_update = $stock->stock_quantity_virtual + $item->quantity;
+
+                                if(!$stock->stock_available) {
+                                    $stock->update([
+                                        "stock_available" => true
+                                    ]);
+                                }
+
+                                $stock->update([
+                                    "stock_quantity_virtual" => $stock_update
+                                ]);
+                            }
+
+                            $record->update([
+                                "status" => "canceled"
+                            ]);
+
+                            Notification::make()
+                            ->success()
+                            ->title('Orden Cancelada')
+                            ->body('El stock de los productos fue actualizo.')
+                            ->send();
+                        } else {
+                            Notification::make()
+                            ->danger()
+                            ->title('No se puede cancelar la orden')
+                            ->body('Solo se pueden cancelar las ordenes en estado processing')
+                            ->send();
+                        }
+                        
+                    })
+                    ->requiresConfirmation()
+                    ->icon('heroicon-o-hand-thumb-down')
+                    ->color('danger'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

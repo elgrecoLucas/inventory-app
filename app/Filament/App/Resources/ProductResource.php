@@ -17,6 +17,11 @@ use Illuminate\Support\Str;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Enums\ActionsPosition;
 
+use Filament\Forms\Set;
+use Filament\Forms\Get;
+
+use App\Models\Category;
+
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
@@ -27,26 +32,81 @@ class ProductResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('brand')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('model')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('price')
-                    ->required()
-                    ->numeric()
-                    ->prefix('$'),
-                Forms\Components\TextInput::make('color')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('size')
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->rows(5)
-                    ->cols(20),
-            ]);
+        ->schema([
+            Forms\Components\Group::make()->schema([
+
+                Forms\Components\Section::make("Información del producto")->schema([
+
+                    Forms\Components\TextInput::make('name')
+                        ->label('Nombre del producto')
+                        ->required()
+                        ->maxLength(255),
+
+                    Forms\Components\TextInput::make('brand')
+                        ->label('Marca')
+                        ->required()
+                        ->maxLength(255),
+
+                    Forms\Components\TextInput::make('model')
+                        ->label('Modelo')
+                        ->required()
+                        ->maxLength(255),
+                    
+                    Forms\Components\TextInput::make('color')
+                        ->label("Color")
+                        ->required(),
+                    Forms\Components\TextInput::make('size')
+                        ->label("Tamaño/Capacidad")
+                        ->required(),
+
+                    Forms\Components\MarkdownEditor::make('description')
+                        ->required()
+                        ->columnSpanFull()
+                        ->fileAttachmentsDirectory('products'),
+                ])->columns(2),
+                
+                Forms\Components\Section::make("Imágenes del producto")->schema([
+                    Forms\Components\FileUpload::make('images')
+                        ->multiple()
+                        ->directory('products')
+                        ->maxFiles(5)
+                        ->reorderable()
+                ])
+            ])->columnSpan(2),
+            
+            Forms\Components\Group::make()->schema([
+                Forms\Components\Section::make("Precio")->schema([
+                    Forms\Components\TextInput::make('price')
+                        ->label('Pesos')
+                        ->numeric()
+                        ->required(),
+                ]),
+                Forms\Components\Section::make("Relaciones")->schema([
+                    Forms\Components\Select::make('category_id')
+                        ->label('Categoria del producto')
+                        ->relationship('category', 'name')
+                        ->required()
+                        ->searchable()
+                        ->preload()
+                        ->reactive()
+                ]),
+                Forms\Components\Section::make("Estados")->schema([
+                    Forms\Components\Toggle::make('is_featured')
+                        ->label('Es Premium/destacado')
+                        ->required()
+                        ->default(false),
+                    Forms\Components\Toggle::make('in_stock')
+                        ->label('En Stock')
+                        ->required()
+                        ->default(true),
+                    Forms\Components\Toggle::make('on_sale')
+                        ->label('En Oferta')
+                        ->required()
+                        ->default(false),
+                ]),
+            ])->columnSpan(1)
+
+        ])->columns(3);
     }
 
     public static function table(Table $table): Table
@@ -66,6 +126,7 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('model')
                     ->label('Modelo')
                     ->searchable(),
+                Tables\Columns\TagsColumn::make('tags'),
                 Tables\Columns\TextColumn::make('price')
                     ->label('Precio')
                     ->money()
@@ -77,7 +138,7 @@ class ProductResource extends Resource
                     ->label('Tamaño')    
                     ->searchable(),
                 Tables\Columns\TextColumn::make('stock.stock_quantity_virtual')
-                    ->label('Unidades disponibles')
+                    ->label('Stock')
                     ->numeric(),
                 Tables\Columns\IconColumn::make('on_sale')
                     ->label('En oferta')
@@ -87,10 +148,8 @@ class ProductResource extends Resource
                 //
             ])
             ->actions([
-                ViewAction::make()->label('Ver más'),
-                Action::make('Añadir al carrito')
-                    ->url(fn (String $record): string => $record) //route('posts.edit', $record)
-                    ->openUrlInNewTab(),
+                Tables\Actions\ViewAction::make()
+                ->label('Imágenes'),
             ], position: ActionsPosition::BeforeColumns)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -111,7 +170,7 @@ class ProductResource extends Resource
         return [
             'index' => Pages\ListProducts::route('/'),
             'create' => Pages\CreateProduct::route('/create'),
-            'edit' => Pages\EditProduct::route('/{record}/edit'),
+            //'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
     }
 }
