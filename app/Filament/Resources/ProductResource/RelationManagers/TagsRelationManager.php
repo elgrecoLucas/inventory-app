@@ -21,16 +21,16 @@ class TagsRelationManager extends RelationManager
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
                     ->maxLength(255)
                     ->live()
                     ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
                 Forms\Components\TextInput::make('slug')
+                    ->label('Nombre Corto')
                     ->required()
                     ->maxLength(255)
                     ->dehydrated(),
-                Forms\Components\Toggle::make('is_active')
-                    ->required(),
             ]);
     }
 
@@ -39,7 +39,8 @@ class TagsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('name')
+                ->label('Nombre'),
             ])
             ->filters([
                 //
@@ -48,13 +49,15 @@ class TagsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
+                Tables\Actions\EditAction::make()
+                ->label('Editar'),
+                Tables\Actions\DeleteAction::make()
+                ->label(''),
+            ]);
+            /*->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]);*/
     }
 }

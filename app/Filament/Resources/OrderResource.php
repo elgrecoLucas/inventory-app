@@ -53,26 +53,32 @@ class OrderResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
-                    ->numeric()
-                    ->label('Nombre del usuario')
-                    ->sortable(),
+                    ->label('Nombre del Usuario')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('user.lastname')
-                    ->numeric()
-                    ->label('Apellido del usuario')
-                    ->sortable(),
+                    ->label('Apellido del Usuario')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('total_amount')
                     ->numeric()
-                    ->label('Monto total')
+                    ->label('Monto Total')
                     ->sortable(),
                 Tables\Columns\BadgeColumn::make('status')
                 ->label('Estado')
                 ->colors([
-                    'secondary' => 'proccesing',
-                    'success' => 'finished',
-                    'danger' => 'canceled',
-                ]),
+                    'warning' => 'Procesando',
+                    'success' => 'Finalizada',
+                    'danger' => 'Cancelada',
+                ])
+                ->searchable(),
                 Tables\Columns\TextColumn::make('shipping_method')
-                ->label('Método de envío'),
+                ->label('Método de Envío'),
+                Tables\Columns\TextColumn::make('user.address')
+                ->label('Dirección')
+                ->copyable()
+                ->copyMessage('Dirección copiada!')
+                ->copyMessageDuration(1500),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -88,15 +94,15 @@ class OrderResource extends Resource
                 //
             ])
             ->actions([
-                ActionGroup::make([
+               /* ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
-                ]),
+                ]),*/
 
                 Action::make('Aprobar')
                     ->action(function (Order $record) {
-                        if($record->status == 'processing') {
+                        if($record->status == 'Procesando') {
                             $items = OrderItem::where('order_id', $record->id)->get();
 
                             foreach ($items as $item) {
@@ -109,20 +115,20 @@ class OrderResource extends Resource
                             }
 
                             $record->update([
-                                "status" => "finished"
+                                "status" => "Finalizada"
                             ]);
 
                             Notification::make()
                             ->success()
-                            ->title('Orden Aprobada')
-                            ->body('El stock real de los productos fue actualizo.')
+                            ->title('Orden Aprobada!')
+                            ->body('El stock real de los productos fue actualizado.')
                             ->send();
 
                         } else {
                             Notification::make()
                             ->danger()
                             ->title('No se puede aprobar la orden')
-                            ->body('Solo se pueden aprobar las ordenes en estado processing')
+                            ->body('Sólo se pueden aprobar las ordenes en estado "Procesando"')
                             ->send();
                         }
                       
@@ -135,7 +141,7 @@ class OrderResource extends Resource
                 Action::make('Cancelar')
                     ->action(function (Order $record) {
                         
-                        if($record->status == 'processing') {
+                        if($record->status == 'Procesando') {
                             $items = OrderItem::where('order_id', $record->id)->get();
 
                             foreach ($items as $item) {
@@ -154,19 +160,19 @@ class OrderResource extends Resource
                             }
 
                             $record->update([
-                                "status" => "canceled"
+                                "status" => "Cancelada"
                             ]);
 
                             Notification::make()
                             ->success()
-                            ->title('Orden Cancelada')
-                            ->body('El stock de los productos fue actualizo.')
+                            ->title('Orden Cancelada!')
+                            ->body('El stock de los productos fue actualizado.')
                             ->send();
                         } else {
                             Notification::make()
                             ->danger()
                             ->title('No se puede cancelar la orden')
-                            ->body('Solo se pueden cancelar las ordenes en estado processing')
+                            ->body('Sólo se pueden cancelar las ordenes en estado "Procesando"')
                             ->send();
                         }
                         
@@ -174,12 +180,12 @@ class OrderResource extends Resource
                     ->requiresConfirmation()
                     ->icon('heroicon-o-hand-thumb-down')
                     ->color('danger'),
-            ])
-            ->bulkActions([
+            ]);
+            /*->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]);*/
     }
 
     public static function getRelations(): array
@@ -193,8 +199,8 @@ class OrderResource extends Resource
     {
         return [
             'index' => Pages\ListOrders::route('/'),
-            'create' => Pages\CreateOrder::route('/create'),
-            'edit' => Pages\EditOrder::route('/{record}/edit'),
+            //'create' => Pages\CreateOrder::route('/create'),
+            //'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];
     }
 }

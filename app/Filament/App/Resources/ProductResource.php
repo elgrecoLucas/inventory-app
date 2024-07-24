@@ -14,11 +14,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Actions\ViewAction;
 use Illuminate\Support\Str;
-use Filament\Tables\Actions\Action;
+//use Filament\Tables\Actions\Action;
 use Filament\Tables\Enums\ActionsPosition;
 
 use Filament\Forms\Set;
 use Filament\Forms\Get;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\TextInput;
 
 use App\Models\Category;
 
@@ -35,10 +37,10 @@ class ProductResource extends Resource
         ->schema([
             Forms\Components\Group::make()->schema([
 
-                Forms\Components\Section::make("Información del producto")->schema([
+                Forms\Components\Section::make("Información del Producto")->schema([
 
                     Forms\Components\TextInput::make('name')
-                        ->label('Nombre del producto')
+                        ->label('Nombre del Producto')
                         ->required()
                         ->maxLength(255),
 
@@ -59,10 +61,19 @@ class ProductResource extends Resource
                         ->label("Tamaño/Capacidad")
                         ->required(),
 
-                    Forms\Components\MarkdownEditor::make('description')
+                    Forms\Components\TextInput::make('description')
                         ->required()
                         ->columnSpanFull()
-                        ->fileAttachmentsDirectory('products'),
+                        ->suffixAction(
+                            Action::make('copyCostToPrice')
+                                ->icon('heroicon-m-clipboard')
+                                ->action(function ($livewire, $state) {
+                                    $livewire->js(
+                                        'window.navigator.clipboard.writeText("'.$state.'");
+                                        $tooltip("'.__('Descripción copiada!').'", { timeout: 1500 });'
+                                    );
+                                })
+                            ),
                 ])->columns(2),
                 
                 Forms\Components\Section::make("Imágenes del producto")->schema([
@@ -71,19 +82,24 @@ class ProductResource extends Resource
                         ->directory('products')
                         ->maxFiles(5)
                         ->reorderable()
+                        ->downloadable(),
                 ])
             ])->columnSpan(2),
             
             Forms\Components\Group::make()->schema([
-                Forms\Components\Section::make("Precio")->schema([
+                Forms\Components\Section::make("Precios")->schema([
                     Forms\Components\TextInput::make('price')
-                        ->label('Pesos')
+                        ->label('Precio Mayorista')
+                        ->numeric()
+                        ->required(),
+                        Forms\Components\TextInput::make('suggest_price')
+                        ->label('Precio Sugerido para la venta')
                         ->numeric()
                         ->required(),
                 ]),
                 Forms\Components\Section::make("Relaciones")->schema([
                     Forms\Components\Select::make('category_id')
-                        ->label('Categoria del producto')
+                        ->label('Categoría del Producto')
                         ->relationship('category', 'name')
                         ->required()
                         ->searchable()
@@ -92,15 +108,15 @@ class ProductResource extends Resource
                 ]),
                 Forms\Components\Section::make("Estados")->schema([
                     Forms\Components\Toggle::make('is_featured')
-                        ->label('Es Premium/destacado')
+                        ->label('Es Destacado?')
                         ->required()
                         ->default(false),
                     Forms\Components\Toggle::make('in_stock')
-                        ->label('En Stock')
+                        ->label('En Stock?')
                         ->required()
                         ->default(true),
                     Forms\Components\Toggle::make('on_sale')
-                        ->label('En Oferta')
+                        ->label('En Oferta?')
                         ->required()
                         ->default(false),
                 ]),
@@ -126,9 +142,14 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('model')
                     ->label('Modelo')
                     ->searchable(),
-                Tables\Columns\TagsColumn::make('tags'),
+                Tables\Columns\TagsColumn::make('tags.name')
+                    ->label('Etiquetas'),
                 Tables\Columns\TextColumn::make('price')
-                    ->label('Precio')
+                    ->label('Precio Mayorista')
+                    ->money()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('suggest_price')
+                    ->label('Precio Sugerido')
                     ->money()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('color')
@@ -141,7 +162,7 @@ class ProductResource extends Resource
                     ->label('Stock')
                     ->numeric(),
                 Tables\Columns\IconColumn::make('on_sale')
-                    ->label('En oferta')
+                    ->label('En Oferta?')
                     ->boolean(),
             ])
             ->filters([
@@ -149,13 +170,13 @@ class ProductResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
-                ->label('Imágenes'),
-            ], position: ActionsPosition::BeforeColumns)
-            ->bulkActions([
+                ->label('Ver más'),
+            ], position: ActionsPosition::BeforeColumns);
+           /* ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]);*/
     }
 
     public static function getRelations(): array
@@ -169,7 +190,7 @@ class ProductResource extends Resource
     {
         return [
             'index' => Pages\ListProducts::route('/'),
-            'create' => Pages\CreateProduct::route('/create'),
+            //'create' => Pages\CreateProduct::route('/create'),
             //'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
     }

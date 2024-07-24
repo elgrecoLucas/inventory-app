@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
@@ -46,23 +47,23 @@ class OrderResource extends Resource
                         ->columnSpan(4),
                         Forms\Components\ToggleButtons::make('shipping_method')
                         ->inline()
-                        ->label('Tipo de entrega')
-                        ->default('home delivery')
+                        ->label('Método de Envío')
+                        ->default('Entrega a domicilio')
                         ->required()
                         ->options([
-                            'home delivery' => 'Entrega a domicilio',
-                            'the seller delivers' => 'El vendedor entrega',
-                            'pick up at the office' => 'Recoger en la oficina',
+                            'Entrega a domicilio' => 'Entrega a domicilio',
+                            'El vendedor entrega' => 'El vendedor entrega',
+                            'Recoger en la oficina' => 'Recoger en la oficina',
                         ])
                         ->colors([
-                            'home delivery' => 'info',
-                            'the seller delivers' => 'info',
-                            'pick up at the office' => 'info',
+                            'Entrega a domicilio' => 'info',
+                            'El vendedor entrega' => 'info',
+                            'Recoger en la oficina' => 'info',
                         ])
                         ->icons([
-                            'home delivery' => 'heroicon-m-home',
-                            'the seller delivers' => 'heroicon-m-truck',
-                            'pick up at the office' => 'heroicon-m-building-office-2',
+                            'Entrega a domicilio' => 'heroicon-m-home',
+                            'El vendedor entrega' => 'heroicon-m-truck',
+                            'Recoger en la oficina' => 'heroicon-m-building-office-2',
                         ])
                         ->columnSpan(8),
                     ])->columns(12),
@@ -70,10 +71,10 @@ class OrderResource extends Resource
                     Forms\Components\Section::make('Compra')->schema([
                         Forms\Components\Repeater::make('orderItems')
                         ->relationship()
-                        ->label('productos')
                         ->schema([
                             Forms\Components\Select::make('product_id')
                             ->relationship('product', 'name')
+                            ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name} | {$record->color}")
                             ->label('Producto')
                             ->searchable()
                             ->preload()
@@ -114,14 +115,14 @@ class OrderResource extends Resource
 
                             Forms\Components\TextInput::make('stock_quantity_virtual')
                             ->numeric()
-                            ->label('Stock disponible')
+                            ->label('Stock Disponible')
                             ->disabled()
                             ->hidden(fn (Get $get) => ! $get('product_id'))
                             ->columnSpan(2),
 
                             Forms\Components\TextInput::make('unit_amount')
                             ->numeric()
-                            ->label('Precio')
+                            ->label('Precio por Unidad')
                             ->required()
                             ->disabled()
                             ->dehydrated()
@@ -136,7 +137,7 @@ class OrderResource extends Resource
 
                             Forms\Components\TextInput::make('total_amount')
                             ->numeric()
-                            ->label('Precio x cantidad')
+                            ->label('Monto Total')
                             ->required()
                             ->disabled()
                             ->dehydrated()
@@ -145,7 +146,7 @@ class OrderResource extends Resource
                         ])->columns(12)->addActionLabel('Agregar producto'),
 
                         Forms\Components\Placeholder::make('total_amount_placeholder')
-                        ->label('Precio total de la orden de compra')
+                        ->label('MONTO TOTAL DE LA ORDEN')
                         ->content(function(Get $get, Set $set) {
                             $total = 0;
                             if (!$repeaters = $get('orderItems')){
@@ -173,38 +174,49 @@ class OrderResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
+                    ->label('Nombre/s')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('user.lastname')
+                    ->label('Apellido/s')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total_amount')
+                    ->label('Monto Total')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('status'),
-                Tables\Columns\TextColumn::make('shipping_method'),
+                Tables\Columns\BadgeColumn::make('status')
+                    ->label('Estado')
+                    ->colors([
+                        'warning' => 'Procesando',
+                        'success' => 'Finalizada',
+                        'danger' => 'Cancelada',
+                    ]),
+                Tables\Columns\TextColumn::make('shipping_method')
+                    ->label('Método de Envío'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    //->toggleable(isToggledHiddenByDefault: true),
+                    ->hidden(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    //->toggleable(isToggledHiddenByDefault: true),
+                    ->hidden(),
             ])
             ->filters([
                 //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
-                ->label('')
-            ])
+            ]);
+            /*->actions([
+                Tables\Actions\EditAction::make()
+                ->label('Editar'),
+            ]);
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]);*/
     }
 
     public static function getRelations(): array
@@ -219,7 +231,7 @@ class OrderResource extends Resource
         return [
             'index' => Pages\ListOrders::route('/'),
             'create' => Pages\CreateOrder::route('/create'),
-            'edit' => Pages\EditOrder::route('/{record}/edit'),
+            //'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];
     }
 }

@@ -13,8 +13,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 use Filament\Forms\Set;
 use Filament\Forms\Get;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 use App\Models\Category;
 
@@ -33,8 +35,6 @@ class ProductResource extends Resource
                 Forms\Components\Group::make()->schema([
 
                     Forms\Components\Section::make("Información del producto")->schema([
-                        Forms\Components\Placeholder::make('Importante')
-                            ->content(new HtmlString('<h3 style="color: red; font-weight: bold;">En el nombre del producto hay que especificar el color y el tamaño. Por ejemplo: "Vaso Térmico 1,18 Lts | Color Merlot"</h3>')),
 
                         Forms\Components\TextInput::make('name')
                             ->label('Nombre del producto')
@@ -59,31 +59,58 @@ class ProductResource extends Resource
                             ->required(),
 
                         Forms\Components\MarkdownEditor::make('description')
+                            ->label('Descripción')
                             ->required()
                             ->columnSpanFull()
-                            ->fileAttachmentsDirectory('products'),
+                            //->fileAttachmentsDirectory('products')
+                            ->disableToolbarButtons([
+                                'attachFiles',
+                                'codeBlock',
+                                'table',
+                            ]),
                     ])->columns(2),
                     
                     Forms\Components\Section::make("Imágenes del producto")->schema([
                         Forms\Components\FileUpload::make('images')
+                            ->label('Imágenes')
                             ->multiple()
-                            ->directory('products')
+                            ->directory('product')
                             ->maxFiles(5)
                             ->reorderable()
+                            ->uploadingMessage('Subiendo imágenes...')
+                            
                     ])
                 ])->columnSpan(2),
                 
                 Forms\Components\Group::make()->schema([
-                    Forms\Components\Section::make("Precio")->schema([
+                    Forms\Components\Section::make("Precios")->schema([
                         Forms\Components\TextInput::make('price')
-                            ->label('Pesos')
+                            ->label('Precio Mayorista')
+                            ->numeric()
+                            ->required(),
+                            Forms\Components\TextInput::make('suggest_price')
+                            ->label('Precio Sugerido para la venta')
                             ->numeric()
                             ->required(),
                     ]),
                     Forms\Components\Section::make("Relaciones")->schema([
                         Forms\Components\Select::make('category_id')
-                            ->label('Categoria del producto')
+                            ->label('Categoría del producto')
                             ->relationship('category', 'name')
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                ->label('Nombre')
+                                ->required()
+                                ->maxLength(255)
+                                ->live()
+                                ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                                Forms\Components\TextInput::make('slug')
+                                ->label('Nombre Corto')
+                                ->required()
+                                ->readOnly()
+                                ->maxLength(255)
+                                ->dehydrated(),
+                            ])
                             ->required()
                             ->searchable()
                             ->preload()
@@ -91,34 +118,42 @@ class ProductResource extends Resource
                     ]),
                     Forms\Components\Section::make("Estados")->schema([
                         Forms\Components\Toggle::make('is_featured')
-                            ->label('Es Premium/destacado')
+                            ->label('Es Destacado?')
                             ->required()
                             ->default(false),
                         Forms\Components\Toggle::make('in_stock')
-                            ->label('En Stock')
+                            ->label('En Stock?')
                             ->required()
                             ->default(true),
                         Forms\Components\Toggle::make('on_sale')
-                            ->label('En Oferta')
+                            ->label('En Oferta?')
                             ->required()
                             ->default(false),
                     ]),
-                    Forms\Components\Section::make('Stock')
+                    Forms\Components\Section::make('Stocks')
                     ->relationship('stock')
                     ->schema([
-
-                        Forms\Components\TextInput::make('stock_quantity_virtual')
-                        ->numeric()
-                        ->label('Stock virtual')
-                        ->required(),
 
                         Forms\Components\TextInput::make('stock_quantity_real')
                         ->numeric()
                         ->label('Stock Real')
-                        ->required(),
+                        ->required()
+                        ->live()
+                        ->afterStateUpdated(fn (Set $set, ?int $state) => $set('stock_quantity_virtual', $state))
+                        ->hintIcon('heroicon-o-exclamation-circle', tooltip: 'El stock real es aquel que determina la cantidad de unidades de un producto.')
+                        ->hintColor('primary'),
+
+                        Forms\Components\TextInput::make('stock_quantity_virtual')
+                        ->numeric()
+                        ->label('Stock Virtual')
+                        ->required()
+                        ->dehydrated()
+                        ->readOnly()
+                        ->hintIcon('heroicon-o-exclamation-circle', tooltip: 'El stock virtual es aquel que visualiza el usuario.')
+                        ->hintColor('primary'),
 
                         Forms\Components\Toggle::make('stock_available')
-                            ->label('Stock habilitado')
+                            ->label('Está Disponible?')
                             ->required()
                             ->default(true),
                     ]),
@@ -132,7 +167,7 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('category.name')
-                    ->label('Categoria')
+                    ->label('Categoría')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('name')
@@ -142,17 +177,21 @@ class ProductResource extends Resource
                     ->label('Marca')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
-                    ->label('Precio')
+                    ->label('Precio Mayorista')
+                    ->money()
+                    ->sortable(),
+                    Tables\Columns\TextColumn::make('suggest_price')
+                    ->label('Precio Sugerido')
                     ->money()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('is_featured')
-                    ->label('Destacado')
+                    ->label('Es Destacado?')
                     ->boolean(),
                 Tables\Columns\IconColumn::make('in_stock')
-                    ->label('Stock')
+                    ->label('En Stock?')
                     ->boolean(),
                 Tables\Columns\IconColumn::make('on_sale')
-                    ->label('Oferta')
+                    ->label('En Oferta?')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -175,12 +214,12 @@ class ProductResource extends Resource
                 ->label('Editar'),
                 Tables\Actions\DeleteAction::make()
                 ->label(''),
-            ])
-            ->bulkActions([
+            ]);
+            /*->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]);*/
             /*
             ->recordUrl(
                 fn (Product $record): string => Pages\ViewProduct::getUrl([$record->id]),

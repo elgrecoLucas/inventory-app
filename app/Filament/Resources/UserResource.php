@@ -10,8 +10,10 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
@@ -63,11 +65,15 @@ class UserResource extends Resource
                     ->tel()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\DateTimePicker::make('email_verified_at'),
+                Forms\Components\DateTimePicker::make('email_verified_at')
+                    ->label('Correo verificado')
+                    ->disabledOn('edit'),
                 Forms\Components\TextInput::make('password')
                     ->label('Contraseña')
+                    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                    ->dehydrated(fn ($state) => filled($state))
+                    ->required(fn (string $context): bool => $context === 'create')
                     ->password()
-                    ->required()
                     ->maxLength(255),
                 Forms\Components\Select::make('roles')
                     ->label('Rol')
@@ -95,7 +101,7 @@ class UserResource extends Resource
                     ->label('CUIT')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
-                    ->label('Correo electrónico')
+                    ->label('Correo Electrónico')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('address')
                     ->label('Domicilio')
@@ -116,23 +122,25 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    //->toggleable(isToggledHiddenByDefault: true),
+                    ->hidden(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    //->toggleable(isToggledHiddenByDefault: true),
+                    ->hidden(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
+            ]);
+            /*->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]);*/
     }
 
     public static function getRelations(): array
