@@ -36,12 +36,6 @@ class TagResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->dehydrated(),
-                Forms\Components\FileUpload::make('image')
-                    ->label('Imagen')
-                    ->image(),
-                Forms\Components\Toggle::make('is_active')
-                    ->label('Está activa')
-                    ->required(),
             ]);
     }
 
@@ -56,17 +50,16 @@ class TagResource extends Resource
                     ->label('Nombre corto')
                     ->searchable(),
                 Tables\Columns\ImageColumn::make('image'),
-                Tables\Columns\IconColumn::make('is_active')
-                    ->label('Está activa')
-                    ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    //->toggleable(isToggledHiddenByDefault: true),
+                    ->hidden(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    //->toggleable(isToggledHiddenByDefault: true),
+                    ->hidden(),
             ])
             ->filters([
                 //

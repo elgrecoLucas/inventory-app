@@ -39,18 +39,18 @@ class OrderItemsRelationManager extends RelationManager
                     ->label('Cantidad')
                     ->numeric(),
                 Tables\Columns\TextColumn::make('unit_amount')
-                    ->label('Precio por unidad')
+                    ->label('Precio por Unidad')
                     ->numeric(decimalPlaces: 2),
                 Tables\Columns\TextColumn::make('total_amount')
-                    ->label('Precio total')
+                    ->label('Precio Total')
                     ->numeric(decimalPlaces: 2),
             ])
             ->filters([
                 //
-            ])
-            ->headerActions([
+            ]);
+            /*->headerActions([
                 Tables\Actions\CreateAction::make(),
-            ])
+            ]);
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -59,6 +59,6 @@ class OrderItemsRelationManager extends RelationManager
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]);*/
     }
 }

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('brand')->nullable();
             $table->string('model')->nullable();
             $table->decimal('price');
+            $table->decimal('suggested_price');
             $table->string('color')->nullable();
             $table->string('size')->nullable();
             $table->string('description');

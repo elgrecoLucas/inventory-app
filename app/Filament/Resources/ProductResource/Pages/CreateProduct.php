@@ -22,4 +22,8 @@ class CreateProduct extends CreateRecord
         $stock = Stock::where('product_id', $productCreated->id)->update(['category_id' => $category_id]);
 
     }
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

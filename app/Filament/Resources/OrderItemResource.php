@@ -84,15 +84,15 @@ class OrderItemResource extends Resource
             ])
             ->filters([
                 //
-            ])
-            ->actions([
+            ]);
+            /*->actions([
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]);*/
     }
 
     public static function getRelations(): array
@@ -105,9 +105,9 @@ class OrderItemResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOrderItems::route('/'),
-            'create' => Pages\CreateOrderItem::route('/create'),
-            'edit' => Pages\EditOrderItem::route('/{record}/edit'),
+           // 'index' => Pages\ListOrderItems::route('/'),
+           // 'create' => Pages\CreateOrderItem::route('/create'),
+           // 'edit' => Pages\EditOrderItem::route('/{record}/edit'),
         ];
     }
 }

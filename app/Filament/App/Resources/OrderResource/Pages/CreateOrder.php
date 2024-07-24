@@ -13,10 +13,11 @@ class CreateOrder extends CreateRecord
 {
     protected static string $resource = OrderResource::class;
     protected static ?string $title = 'Crear orden de compra';
+    protected static bool $canCreateAnother = false;
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['status'] = 'processing';
+        $data['status'] = 'Procesando';
         $data['user_id'] = auth()->id();
 
         return $data;
@@ -29,7 +30,7 @@ class CreateOrder extends CreateRecord
 
     protected function getCreatedNotificationTitle(): ?string
     {
-        return 'La orden de compra se creo con exito';
+        return 'La orden de compra se creo con éxito';
     }
 
     // Menejador de la creación: handleRecordCreation(array $data): Order

@@ -43,16 +43,10 @@ class CategoryResource extends Resource
                     ->live()
                     ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
                 Forms\Components\TextInput::make('slug')
-                    ->label('Nombre corto')
+                    ->label('Nombre Corto')
                     ->required()
                     ->maxLength(255)
                     ->dehydrated(),
-                Forms\Components\FileUpload::make('image')
-                    ->label('Imagen')
-                    ->image(),
-                Forms\Components\Toggle::make('is_active')
-                    ->label('Está activa')
-                    ->required(),
             ]);
     }
 
@@ -64,13 +58,8 @@ class CategoryResource extends Resource
                     ->label('Nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('slug')
-                    ->label('Nombre corto')
+                    ->label('Nombre Corto')
                     ->searchable(),
-                Tables\Columns\ImageColumn::make('image')
-                    ->label('Imagen'),
-                Tables\Columns\IconColumn::make('is_active')
-                    ->label('Está activa')
-                    ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -86,17 +75,16 @@ class CategoryResource extends Resource
                 //
             ])
             ->actions([
-                ActionGroup::make([
-                    ViewAction::make(),
-                    EditAction::make(),
-                    DeleteAction::make(),
-                ]),
-            ])
-            ->bulkActions([
+                Tables\Actions\EditAction::make()
+                ->label('Editar'),
+                Tables\Actions\DeleteAction::make()
+                ->label(''),
+            ]);
+            /*->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]);*/
     }
 
     public static function getRelations(): array
