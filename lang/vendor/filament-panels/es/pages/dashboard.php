@@ -2,7 +2,7 @@
 
 return [
 
-    'title' => 'Panel de adminitración',
+    'title' => 'Panel de administración',
 
     'actions' => [
 

@@ -14,13 +14,14 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-
+use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Enums\ActionsPosition;
 
 class OrderResource extends Resource
 {
@@ -35,16 +36,53 @@ class OrderResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required(),
-                Forms\Components\TextInput::make('total_amount')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('status')
-                    ->required(),
-                Forms\Components\TextInput::make('shipping_method')
-                    ->required(),
+                Forms\Components\Group::make()->schema([
+                    Forms\Components\Section::make('Información de la Compra')->schema([
+                    Forms\Components\Select::make('user_id')
+                        ->relationship('user', 'name')
+                        ->label('Usuario')
+                        ->required()
+                        ->columnSpan(6),
+                    Forms\Components\TextInput::make('total_amount')
+                        ->required()
+                        ->label('Monto Total')
+                        ->numeric()
+                        ->columnSpan(4),
+                    Forms\Components\TextInput::make('status')
+                        ->required()
+                        ->label('Estado')
+                        ->columnSpan(4),
+                    Forms\Components\TextInput::make('shipping_method')
+                        ->label('Método de Envío')
+                        ->required()
+                        ->columnSpan(6),
+                ])->columns(20),
+                Forms\Components\Section::make('Detalle de la Compra')->schema([
+                    Forms\Components\Repeater::make('orderItems')
+                    ->relationship()
+                    ->label('Ítems de la Orden')
+                    ->schema([
+                        Forms\Components\Select::make('product_id')
+                        ->relationship('product', 'name')
+                        ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name} | {$record->color}")
+                        ->label('Producto')
+                        ->columnSpan(10),
+                        Forms\Components\TextInput::make('quantity')
+                        ->numeric()
+                        ->label('Cantidad')
+                        ->columnSpan(2),
+                        Forms\Components\TextInput::make('unit_amount')
+                          ->numeric()
+                          ->label('Precio por Unidad')
+                          ->columnSpan(4),
+                        Forms\Components\TextInput::make('total_amount')
+                          ->numeric()
+                          ->label('Monto Total')
+                          ->columnSpan(4)
+                        ])->columns(20)
+                    ])
+                ])->columnSpanFull()
+           
             ]);
     }
 
@@ -61,7 +99,7 @@ class OrderResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('total_amount')
-                    ->numeric()
+                    ->money()
                     ->label('Monto Total')
                     ->sortable(),
                 Tables\Columns\BadgeColumn::make('status')
@@ -75,6 +113,7 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('shipping_method')
                 ->label('Método de Envío'),
                 Tables\Columns\TextColumn::make('user.address')
+                ->tooltip('Hace click para copiar la dirección')
                 ->label('Dirección')
                 ->copyable()
                 ->copyMessage('Dirección copiada!')
@@ -99,7 +138,9 @@ class OrderResource extends Resource
                     EditAction::make(),
                     DeleteAction::make(),
                 ]),*/
-
+                Tables\Actions\ViewAction::make()
+                    ->label('Ver detalle')
+                    ->modalHeading('Vista de Orden de Compra'),  
                 Action::make('Aprobar')
                     ->action(function (Order $record) {
                         if($record->status == 'Procesando') {
@@ -109,6 +150,11 @@ class OrderResource extends Resource
                                 $stock = Stock::find($item->stock_id);
                                 $stock_update = $stock->stock_quantity_real - $item->quantity;
 
+                                if($stock_update==0) {
+                                    $stock->update([
+                                        "stock_available" => false
+                                    ]);
+                                }
                                 $stock->update([
                                     "stock_quantity_real" => $stock_update
                                 ]);
@@ -179,8 +225,8 @@ class OrderResource extends Resource
                     })
                     ->requiresConfirmation()
                     ->icon('heroicon-o-hand-thumb-down')
-                    ->color('danger'),
-            ]);
+                    ->color('danger'),               
+                ]);
             /*->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
@@ -202,5 +248,9 @@ class OrderResource extends Resource
             //'create' => Pages\CreateOrder::route('/create'),
             //'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];
+    }
+    public static function getBreadcrumb(): string
+    {
+        return 'Ordenes de Compra';
     }
 }

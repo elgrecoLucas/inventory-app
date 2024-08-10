@@ -151,11 +151,11 @@ class ProductResource extends Resource
                         ->readOnly()
                         ->hintIcon('heroicon-o-exclamation-circle', tooltip: 'El stock virtual es aquel que visualiza el usuario.')
                         ->hintColor('primary'),
-
                         Forms\Components\Toggle::make('stock_available')
                             ->label('Está Disponible?')
                             ->required()
-                            ->default(true),
+                            ->disabled()
+                            ->default(true)
                     ]),
                 ])->columnSpan(1)
 
@@ -173,6 +173,8 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Producto')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('color')
+                    ->label('Color'),
                 Tables\Columns\TextColumn::make('brand')
                     ->label('Marca')
                     ->searchable(),
@@ -186,9 +188,6 @@ class ProductResource extends Resource
                     ->sortable(),
                 Tables\Columns\IconColumn::make('is_featured')
                     ->label('Es Destacado?')
-                    ->boolean(),
-                Tables\Columns\IconColumn::make('in_stock')
-                    ->label('En Stock?')
                     ->boolean(),
                 Tables\Columns\IconColumn::make('on_sale')
                     ->label('En Oferta?')
@@ -209,11 +208,13 @@ class ProductResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
-                ->label('Ver'),
+                ->label('Ver')
+                ->modalHeading('Vista de Producto'),
                 Tables\Actions\EditAction::make()
                 ->label('Editar'),
                 Tables\Actions\DeleteAction::make()
-                ->label(''),
+                ->label('')
+                ->modalHeading('Borrar Producto'),
             ]);
             /*->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -241,5 +242,9 @@ class ProductResource extends Resource
             'edit' => Pages\EditProduct::route('/{record}/edit'),
             //'view' => Pages\ViewProduct::route('/{record}/view'),
         ];
+    }
+    public static function getBreadcrumb(): string
+    {
+        return 'Productos';
     }
 }

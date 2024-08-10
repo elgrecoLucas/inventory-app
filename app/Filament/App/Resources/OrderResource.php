@@ -71,9 +71,10 @@ class OrderResource extends Resource
                     Forms\Components\Section::make('Compra')->schema([
                         Forms\Components\Repeater::make('orderItems')
                         ->relationship()
+                        ->label('Ítems de la Orden')
                         ->schema([
                             Forms\Components\Select::make('product_id')
-                            ->relationship('product', 'name')
+                            ->relationship('product', 'name',fn (Builder $query) => $query->join('stocks', 'products.id', '=', 'stocks.product_id')->where('stock_quantity_real','>',0)->where('in_stock',true))
                             ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name} | {$record->color}")
                             ->label('Producto')
                             ->searchable()
@@ -146,7 +147,7 @@ class OrderResource extends Resource
                         ])->columns(12)->addActionLabel('Agregar producto'),
 
                         Forms\Components\Placeholder::make('total_amount_placeholder')
-                        ->label('MONTO TOTAL DE LA ORDEN')
+                        ->label('MONTO TOTAL DE LA ORDEN DE COMPRA')
                         ->content(function(Get $get, Set $set) {
                             $total = 0;
                             if (!$repeaters = $get('orderItems')){
@@ -183,7 +184,7 @@ class OrderResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total_amount')
                     ->label('Monto Total')
-                    ->numeric()
+                    ->money()
                     ->sortable(),
                 Tables\Columns\BadgeColumn::make('status')
                     ->label('Estado')
@@ -233,5 +234,9 @@ class OrderResource extends Resource
             'create' => Pages\CreateOrder::route('/create'),
             //'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];
+    }
+    public static function getBreadcrumb(): string
+    {
+        return 'Ordenes de Compra';
     }
 }

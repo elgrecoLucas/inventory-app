@@ -18,8 +18,8 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Navigation\NavigationGroup;
-use Filament\SpatieLaravelTranslatablePlugin;
 use Shanerbaner82\PanelRoles\PanelRoles;
+use Filament\Support\Enums\MaxWidth;
 
 class DashboardPanelProvider extends PanelProvider
 {
@@ -31,7 +31,7 @@ class DashboardPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Rose,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -71,15 +71,17 @@ class DashboardPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->plugin(
-                SpatieLaravelTranslatablePlugin::make()
-                    ->defaultLocales(['en', 'es']),
-            )
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 PanelRoles::make()
                 ->roleToAssign('Administrador','Gestor')
                 ->restrictedRoles(['Administrador','Gestor']),
-            ]);
+            ])
+            ->brandLogo(asset('images/logo_black.png'))
+            ->brandLogoHeight('5.5rem')
+            ->darkModeBrandLogo(asset('images/logo_white.png'))
+            ->favicon(asset('images/favicon.png'))
+            ->maxContentWidth(MaxWidth::Full)
+            ->sidebarFullyCollapsibleOnDesktop();
     }
 }

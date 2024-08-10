@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Actions\ViewAction;
@@ -42,6 +43,17 @@ class ProductResource extends Resource
                     Forms\Components\TextInput::make('name')
                         ->label('Nombre del Producto')
                         ->required()
+                        ->suffixAction(
+                            Action::make('copyCostToPrice')
+                                ->icon('heroicon-m-clipboard')
+                                ->color('warning')
+                                ->action(function ($livewire, $state) {
+                                    $livewire->js(
+                                        'window.navigator.clipboard.writeText("'.$state.'");
+                                        $tooltip("'.__('Nombre copiado!').'", { timeout: 1500 });'
+                                    );
+                                })
+                            )
                         ->maxLength(255),
 
                     Forms\Components\TextInput::make('brand')
@@ -67,6 +79,7 @@ class ProductResource extends Resource
                         ->suffixAction(
                             Action::make('copyCostToPrice')
                                 ->icon('heroicon-m-clipboard')
+                                ->color('warning')
                                 ->action(function ($livewire, $state) {
                                     $livewire->js(
                                         'window.navigator.clipboard.writeText("'.$state.'");
@@ -164,13 +177,20 @@ class ProductResource extends Resource
                 Tables\Columns\IconColumn::make('on_sale')
                     ->label('En Oferta?')
                     ->boolean(),
+                Tables\Columns\IconColumn::make('is_featured')
+                    ->label('Es Destacado?')
+                    ->boolean(),
             ])
             ->filters([
-                //
+                Filter::make('in_stock')
+                    ->query(fn (Builder $query): Builder => $query->where('in_stock', true))
+                    ->label('En stock')
+                    ->default()
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
-                ->label('Ver más'),
+                ->label('Ver más')
+                ->modalHeading('Vista de Producto'),
             ], position: ActionsPosition::BeforeColumns);
            /* ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -193,5 +213,9 @@ class ProductResource extends Resource
             //'create' => Pages\CreateProduct::route('/create'),
             //'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
+    }
+    public static function getBreadcrumb(): string
+    {
+        return 'Productos';
     }
 }

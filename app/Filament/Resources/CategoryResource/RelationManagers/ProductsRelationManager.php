@@ -13,12 +13,13 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class ProductsRelationManager extends RelationManager
 {
     protected static string $relationship = 'products';
-
+    protected static ?string $title = 'Productos';
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -29,13 +30,15 @@ class ProductsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('color'),
+                Tables\Columns\TextColumn::make('name')
+                ->label('Nombre'),
+                Tables\Columns\TextColumn::make('color')
+                ->label('Color'),
             ])
             ->filters([
                 //
-            ])
-            ->headerActions([
+            ]);
+            /*->headerActions([
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
@@ -46,6 +49,6 @@ class ProductsRelationManager extends RelationManager
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]);*/
     }
 }

@@ -13,12 +13,13 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class OrderItemsRelationManager extends RelationManager
 {
     protected static string $relationship = 'orderItems';
-
+    protected static ?string $title = 'Ítems de la Orden';
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('unit_amount')
+                Forms\Components\TextInput::make('total_amount')
+                    ->label('Monto Total')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -42,7 +43,7 @@ class OrderItemsRelationManager extends RelationManager
                     ->label('Precio por Unidad')
                     ->numeric(decimalPlaces: 2),
                 Tables\Columns\TextColumn::make('total_amount')
-                    ->label('Precio Total')
+                    ->label('Monto Total')
                     ->numeric(decimalPlaces: 2),
             ])
             ->filters([
@@ -50,7 +51,7 @@ class OrderItemsRelationManager extends RelationManager
             ]);
             /*->headerActions([
                 Tables\Actions\CreateAction::make(),
-            ]);
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

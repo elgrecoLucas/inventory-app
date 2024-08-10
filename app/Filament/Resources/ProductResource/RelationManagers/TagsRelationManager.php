@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 class TagsRelationManager extends RelationManager
 {
     protected static string $relationship = 'tags';
-
+    protected static ?string $title = 'Etiquetas';
     public function form(Form $form): Form
     {
         return $form
@@ -30,6 +30,7 @@ class TagsRelationManager extends RelationManager
                     ->label('Nombre Corto')
                     ->required()
                     ->maxLength(255)
+                    ->readOnly()
                     ->dehydrated(),
             ]);
     }
@@ -46,7 +47,8 @@ class TagsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                ->label('Crear Etiqueta'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
