@@ -20,12 +20,10 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 
-use Filament\Resources\Concerns\Translatable;
-
 
 class CategoryResource extends Resource
 {
-    use translatable;
+
     protected static ?string $model = Category::class;
     protected static ?string $navigationGroup = 'Gestión de productos';
     protected static ?string $navigationLabel = 'Categorías';
@@ -46,6 +44,7 @@ class CategoryResource extends Resource
                     ->label('Nombre Corto')
                     ->required()
                     ->maxLength(255)
+                    ->readOnly()
                     ->dehydrated(),
             ]);
     }
@@ -78,7 +77,8 @@ class CategoryResource extends Resource
                 Tables\Actions\EditAction::make()
                 ->label('Editar'),
                 Tables\Actions\DeleteAction::make()
-                ->label(''),
+                ->label('')
+                ->modalHeading('Borrar Categoría'),
             ]);
             /*->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -101,5 +101,9 @@ class CategoryResource extends Resource
             'create' => Pages\CreateCategory::route('/create'),
             'edit' => Pages\EditCategory::route('/{record}/edit'),
         ];
+    }
+    public static function getBreadcrumb(): string
+    {
+        return 'Categorías';
     }
 }

@@ -23,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
         PanelSwitch::configureUsing(function (PanelSwitch $panelSwitch) {
             $panelSwitch
                 ->simple()
+                ->labels([
+                    'dashboard' => 'Gestión',
+                    'app' => __('Compras')
+                ])
                 ->visible(fn (): bool => auth()->user()?->hasAnyRole([
                     'Administrador','Gestor'
                 ]));

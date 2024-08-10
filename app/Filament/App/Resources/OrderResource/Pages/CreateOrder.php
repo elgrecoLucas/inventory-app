@@ -12,7 +12,7 @@ use App\Models\OrderItem;
 class CreateOrder extends CreateRecord
 {
     protected static string $resource = OrderResource::class;
-    protected static ?string $title = 'Crear orden de compra';
+    protected static ?string $title = 'Crear Orden de Compra';
     protected static bool $canCreateAnother = false;
 
     protected function mutateFormDataBeforeCreate(array $data): array
@@ -30,7 +30,7 @@ class CreateOrder extends CreateRecord
 
     protected function getCreatedNotificationTitle(): ?string
     {
-        return 'La orden de compra se creo con éxito';
+        return 'La orden de compra se creó con éxito';
     }
 
     // Menejador de la creación: handleRecordCreation(array $data): Order

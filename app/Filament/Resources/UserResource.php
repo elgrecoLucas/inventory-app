@@ -14,6 +14,7 @@ use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Hash;
+use Rawilk\FilamentPasswordInput\Password;
 
 class UserResource extends Resource
 {
@@ -68,13 +69,18 @@ class UserResource extends Resource
                 Forms\Components\DateTimePicker::make('email_verified_at')
                     ->label('Correo verificado')
                     ->disabledOn('edit'),
-                Forms\Components\TextInput::make('password')
+                Password::make('password')
                     ->label('Contraseña')
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                     ->dehydrated(fn ($state) => filled($state))
                     ->required(fn (string $context): bool => $context === 'create')
                     ->password()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->copyable(color: 'warning')
+                    ->copyMessage('Contraseña copiada!')
+                    ->copyMessageDuration(1500)
+                    ->regeneratePassword(notify: false, color: 'info')
+                    ->maxLength(8),
                 Forms\Components\Select::make('roles')
                     ->label('Rol')
                     ->relationship('roles', 'name')
@@ -157,5 +163,9 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
+    }
+    public static function getBreadcrumb(): string
+    {
+        return 'Usuarios';
     }
 }
