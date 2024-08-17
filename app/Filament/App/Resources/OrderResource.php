@@ -20,6 +20,7 @@ use Closure;
 use Illuminate\Support\Number;
 
 use App\Models\Product;
+use App\Models\Stock;
 
 class OrderResource extends Resource
 {
@@ -67,14 +68,20 @@ class OrderResource extends Resource
                         ])
                         ->columnSpan(8),
                     ])->columns(12),
-                        
+                    // EN LOS afterStateUpdated antes $state era el id del producto ahora se transformo en el id del Stock...
                     Forms\Components\Section::make('Compra')->schema([
                         Forms\Components\Repeater::make('orderItems')
                         ->relationship()
                         ->label('Ítems de la Orden')
                         ->schema([
                             Forms\Components\Select::make('product_id')
-                            ->relationship('product', 'name',fn (Builder $query) => $query->join('stocks', 'products.id', '=', 'stocks.product_id')->where('stock_quantity_real','>',0)->where('in_stock',true))
+                            ->relationship(
+                                name: 'product',
+                                titleAttribute: 'name',
+                                modifyQueryUsing: function (Builder $query) {
+                                    $query->join('stocks', 'products.id', '=', 'stocks.product_id')->where('stock_quantity_virtual','>',0)->where('in_stock',true)->select('products.id', 'products.name', 'products.color');
+                                } 
+                            )
                             ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->name} | {$record->color}")
                             ->label('Producto')
                             ->searchable()
@@ -86,6 +93,7 @@ class OrderResource extends Resource
                             ->afterStateUpdated(fn($state, Set $set) => $set('unit_amount', Product::find($state)?->price ?? 0))
                             ->afterStateUpdated(fn($state, Set $set) => $set('total_amount', Product::find($state)?->price ?? 0))
                             ->afterStateUpdated(function($state, Set $set) {
+                                //dd($query);
                                 $set('stock_id', Product::find($state)->stock->id);
                                 $set('stock_quantity_virtual', Product::find($state)->stock->stock_quantity_virtual);
                             })

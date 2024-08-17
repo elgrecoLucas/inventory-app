@@ -140,6 +140,13 @@ class ProductResource extends Resource
                         ->required()
                         ->live()
                         ->afterStateUpdated(fn (Set $set, ?int $state) => $set('stock_quantity_virtual', $state))
+                        ->afterStateUpdated(function (Set $set, ?int $state) {
+                            if ($state === 0) {
+                                $set('stock_available', false);
+                            } else {
+                                $set('stock_available', true);
+                            }
+                        })
                         ->hintIcon('heroicon-o-exclamation-circle', tooltip: 'El stock real es aquel que determina la cantidad de unidades de un producto.')
                         ->hintColor('primary'),
 
@@ -151,6 +158,7 @@ class ProductResource extends Resource
                         ->readOnly()
                         ->hintIcon('heroicon-o-exclamation-circle', tooltip: 'El stock virtual es aquel que visualiza el usuario.')
                         ->hintColor('primary'),
+
                         Forms\Components\Toggle::make('stock_available')
                             ->label('Está Disponible?')
                             ->required()
