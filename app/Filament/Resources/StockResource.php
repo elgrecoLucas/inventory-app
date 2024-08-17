@@ -59,32 +59,34 @@ class StockResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stock_quantity_real')
-                    ->label('Stock real')
+                    ->label('Stock Real')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('stock_available')
-                    ->label('Stock disponible')    
+                    ->label('Stock Disponible')    
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    //->toggleable(isToggledHiddenByDefault: true),
+                    ->hidden(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    //->toggleable(isToggledHiddenByDefault: true),
+                    ->hidden(),
             ])
             ->filters([
                 //
-            ])
-            ->actions([
+            ]);
+            /*->actions([
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]);*/
     }
 
     public static function getRelations(): array
@@ -98,8 +100,8 @@ class StockResource extends Resource
     {
         return [
             'index' => Pages\ListStocks::route('/'),
-            'create' => Pages\CreateStock::route('/create'),
-            'edit' => Pages\EditStock::route('/{record}/edit'),
+            //'create' => Pages\CreateStock::route('/create'),
+            //'edit' => Pages\EditStock::route('/{record}/edit'),
         ];
     }
 }

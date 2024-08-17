@@ -18,6 +18,8 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
+use Filament\Support\Enums\MaxWidth;
+
 class AppPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -27,7 +29,7 @@ class AppPanelProvider extends PanelProvider
             ->path('app')
             ->login()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Indigo,
             ])
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
@@ -55,6 +57,12 @@ class AppPanelProvider extends PanelProvider
             ])
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
-            ]);
+            ])
+            ->brandLogo(asset('images/logo_black.png'))
+            ->brandLogoHeight('5.5rem')
+            ->darkModeBrandLogo(asset('images/logo_white.png'))
+            ->favicon(asset('images/favicon.png'))
+            ->maxContentWidth(MaxWidth::Full)
+            ->sidebarFullyCollapsibleOnDesktop();
     }
 }

@@ -12,11 +12,21 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Set;
+use Illuminate\Support\Str;
+
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
+
 
 class CategoryResource extends Resource
 {
+
     protected static ?string $model = Category::class;
     protected static ?string $navigationGroup = 'Gestión de productos';
+    protected static ?string $navigationLabel = 'Categorías';
     protected static ?int $navigationSort = 1;
     //protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -25,15 +35,17 @@ class CategoryResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->live()
+                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
                 Forms\Components\TextInput::make('slug')
+                    ->label('Nombre Corto')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\FileUpload::make('image')
-                    ->image(),
-                Forms\Components\Toggle::make('is_active')
-                    ->required(),
+                    ->maxLength(255)
+                    ->readOnly()
+                    ->dehydrated(),
             ]);
     }
 
@@ -42,32 +54,37 @@ class CategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('slug')
+                    ->label('Nombre Corto')
                     ->searchable(),
-                Tables\Columns\ImageColumn::make('image'),
-                Tables\Columns\IconColumn::make('is_active')
-                    ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    //->toggleable(isToggledHiddenByDefault: true)
+                    ->hidden(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    //->toggleable(isToggledHiddenByDefault: true)
+                    ->hidden(),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
+                Tables\Actions\EditAction::make()
+                ->label('Editar'),
+                Tables\Actions\DeleteAction::make()
+                ->label('')
+                ->modalHeading('Borrar Categoría'),
+            ]);
+            /*->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]);*/
     }
 
     public static function getRelations(): array
@@ -84,5 +101,9 @@ class CategoryResource extends Resource
             'create' => Pages\CreateCategory::route('/create'),
             'edit' => Pages\EditCategory::route('/{record}/edit'),
         ];
+    }
+    public static function getBreadcrumb(): string
+    {
+        return 'Categorías';
     }
 }

@@ -9,11 +9,11 @@ use Filament\Resources\Pages\ListRecords;
 class ListOrders extends ListRecords
 {
     protected static string $resource = OrderResource::class;
-
+    protected static ?string $title = 'Ordenes de Compra';
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            //Actions\CreateAction::make(),
         ];
     }
 }
