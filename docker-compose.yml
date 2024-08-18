@@ -10,7 +10,7 @@ services:
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
-            - '3030:80'
+            - '8080:80'
             - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
         environment:
             WWWUSER: '${WWWUSER}'
@@ -58,7 +58,7 @@ services:
         networks:
             - sail
         ports:
-            - '8080:80'
+            - '8085:80'
 networks:
     sail:
         driver: bridge
