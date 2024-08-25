@@ -91,9 +91,10 @@ class ProductResource extends Resource
                 
                 Forms\Components\Section::make("Imágenes del producto")->schema([
                     Forms\Components\FileUpload::make('images')
+                        ->label('Imágenes')
                         ->multiple()
                         ->directory('products')
-                        ->maxFiles(5)
+                        ->maxFiles(10)
                         ->reorderable()
                         ->downloadable(),
                 ])
