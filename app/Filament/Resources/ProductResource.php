@@ -75,7 +75,7 @@ class ProductResource extends Resource
                             ->label('Imágenes')
                             ->multiple()
                             ->directory('product')
-                            ->maxFiles(5)
+                            ->maxFiles(10)
                             ->reorderable()
                             ->uploadingMessage('Subiendo imágenes...')
                             
