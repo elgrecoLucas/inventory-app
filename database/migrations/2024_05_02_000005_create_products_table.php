@@ -26,7 +26,7 @@ return new class extends Migration
             $table->decimal('suggested_price');
             $table->string('color')->nullable();
             $table->string('size')->nullable();
-            $table->string('description');
+            $table->longText('description');
             $table->boolean('is_featured')->default(false);
             $table->boolean('in_stock')->default(true);
             $table->boolean('on_sale')->default(false);
