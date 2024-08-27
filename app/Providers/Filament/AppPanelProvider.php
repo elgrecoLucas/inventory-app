@@ -17,11 +17,22 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-
 use Filament\Support\Enums\MaxWidth;
+use Filament\Facades\Filament;
+use Filament\Navigation\MenuItem;
 
 class AppPanelProvider extends PanelProvider
 {
+    public function boot(): void
+    {
+        Filament::serving(function () {
+
+            Filament::registerUserMenuItems([
+                'logout' => MenuItem::make()->url(route('filament.app.auth.logout')),
+            ]);
+
+        });
+    }
     public function panel(Panel $panel): Panel
     {
         return $panel
