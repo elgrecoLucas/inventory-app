@@ -20,21 +20,9 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Navigation\NavigationGroup;
 use Shanerbaner82\PanelRoles\PanelRoles;
 use Filament\Support\Enums\MaxWidth;
-use Filament\Facades\Filament;
-use Filament\Navigation\MenuItem;
 
 class DashboardPanelProvider extends PanelProvider
 {
-    public function boot(): void
-    {
-        Filament::serving(function () {
-
-            Filament::registerUserMenuItems([
-                'logout' => MenuItem::make()->url(route('filament.app.auth.logout')),
-            ]);
-
-        });
-    }
     public function panel(Panel $panel): Panel
     {
         return $panel
