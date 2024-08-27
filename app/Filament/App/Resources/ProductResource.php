@@ -44,16 +44,48 @@ class ProductResource extends Resource
                         ->label('Nombre del Producto')
                         ->required()
                         ->suffixAction(
-                            Action::make('copyCostToPrice')
+                            Action::make('copyName')
                                 ->icon('heroicon-m-clipboard')
                                 ->color('warning')
-                                ->action(function ($livewire, $state) {
+                                /*->action(function ($livewire, $state) {
                                     $livewire->js(
                                         'window.navigator.clipboard.writeText("'.$state.'");
                                         $tooltip("'.__('Nombre copiado!').'", { timeout: 1500 });'
                                     );
+                                })*/
+                                ->action(function ($livewire, $state) {
+                                    $livewire->dispatch('copy-to-clipboard', text: $state);
                                 })
-                            )
+                     
+                        )
+                        ->extraAttributes([
+                            'x-data' => '{
+                                copyToClipboard(text) {
+                                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                                        navigator.clipboard.writeText(text).then(() => {
+                                            $tooltip("Nombre Copiado!", { timeout: 1500 });
+                                        }).catch(() => {
+                                            $tooltip("Falló al copiar", { timeout: 1500 });
+                                        });
+                                    } else {
+                                        const textArea = document.createElement("textarea");
+                                        textArea.value = text;
+                                        textArea.style.position = "fixed";
+                                        textArea.style.opacity = "0";
+                                        document.body.appendChild(textArea);
+                                        textArea.select();
+                                        try {
+                                            document.execCommand("copy");
+                                            $tooltip("Nombre Copiado!", { timeout: 1500 });
+                                        } catch (err) {
+                                            $tooltip("Falló al copiar", { timeout: 1500 });
+                                        }
+                                        document.body.removeChild(textArea);
+                                    }
+                                }
+                            }',
+                            'x-on:copy-to-clipboard.window' => 'copyToClipboard($event.detail.text)'
+                        ])
                         ->maxLength(255),
 
                     Forms\Components\TextInput::make('brand')
@@ -77,16 +109,42 @@ class ProductResource extends Resource
                         ->required()
                         ->columnSpanFull()
                         ->suffixAction(
-                            Action::make('copyCostToPrice')
+                            Action::make('copyDescription')
                                 ->icon('heroicon-m-clipboard')
                                 ->color('warning')
                                 ->action(function ($livewire, $state) {
-                                    $livewire->js(
-                                        'window.navigator.clipboard.writeText("'.$state.'");
-                                        $tooltip("'.__('Descripción copiada!').'", { timeout: 1500 });'
-                                    );
-                                })
-                            ),
+                                        $livewire->dispatch('copy-to-clipboard', text: $state);
+                                    })
+                         
+                            )
+                            ->extraAttributes([
+                                'x-data' => '{
+                                    copyToClipboard(text) {
+                                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                                            navigator.clipboard.writeText(text).then(() => {
+                                                $tooltip("Descripción Copiada!", { timeout: 1500 });
+                                            }).catch(() => {
+                                                $tooltip("Falló al copiar", { timeout: 1500 });
+                                            });
+                                        } else {
+                                            const textArea = document.createElement("textarea");
+                                            textArea.value = text;
+                                            textArea.style.position = "fixed";
+                                            textArea.style.opacity = "0";
+                                            document.body.appendChild(textArea);
+                                            textArea.select();
+                                            try {
+                                                document.execCommand("copy");
+                                                $tooltip("Descripción Copiada!", { timeout: 1500 });
+                                            } catch (err) {
+                                                $tooltip("Falló al copiar", { timeout: 1500 });
+                                            }
+                                            document.body.removeChild(textArea);
+                                        }
+                                    }
+                                }',
+                                'x-on:copy-to-clipboard.window' => 'copyToClipboard($event.detail.text)'
+                            ])
                 ])->columns(2),
                 
                 Forms\Components\Section::make("Imágenes del producto")->schema([
