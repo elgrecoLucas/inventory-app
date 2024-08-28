@@ -12,8 +12,3 @@ Route::get('/', function () {
 Route::get('/cancel-order/{order}', [OrderController::class, 'cancel'])->name('order.cancel');
 
 Route::get('/livewire', ListProducts::class);
-
-Route::get('/logout', function () {
-    Auth::logout();
-    return redirect()->route('login');
-})->name('logout');
